@@ -223,4 +223,9 @@ void FileSystemArchive::destroy() {
     free(this);
 }
 
+IArchive* CreateFSArchive(const std::string& rootPath) {
+    auto memptr = malloc(sizeof(FileSystemArchive));
+    return new (memptr) FileSystemArchive(rootPath);
+}
+
 }

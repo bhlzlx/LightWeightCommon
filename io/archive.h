@@ -81,7 +81,9 @@ namespace common {
         virtual std::string rootPath() = 0;
         virtual bool readonly() const = 0;
         virtual void destroy() = 0;
-        virtual ~IArchive() = 0;
+        virtual ~IArchive() {};
     };
+
+    IArchive* CreateFSArchive(const std::string& rootPath);
 
 }
