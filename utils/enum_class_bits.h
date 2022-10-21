@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <cassert>
 
-namespace common {
+namespace comm {
 
     template<typename T, typename IntType = uint8_t, typename validation = std::enable_if_t<std::is_enum<T>::value, bool>>
     class BitFlags {

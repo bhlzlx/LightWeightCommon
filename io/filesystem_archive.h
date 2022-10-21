@@ -1,6 +1,6 @@
 #include "archive.h"
 
-namespace common {
+namespace comm {
 
     class FileIStream : public IStream {
     private:

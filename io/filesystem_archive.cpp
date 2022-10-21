@@ -1,9 +1,10 @@
 #include "filesystem_archive.h"
+#include "../memory/memory.h"
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-namespace common {
+namespace comm {
 
 std::string FormatFilePath(const std::string& _filepath)
 {
@@ -89,7 +90,8 @@ void FileIStream::close()
     }
     _size = 0;
     _file = nullptr;
-    delete this;
+    this->~FileIStream();
+    comm_free(this);
 }
 
 int64_t FileOStream::write(const void* buffer, int64_t size)
@@ -126,7 +128,8 @@ void FileOStream::close()
         fclose(_file);
         _file = nullptr;
     }
-    delete this;
+    this->~FileOStream();
+    comm_free(this);
 }
 
 IStream* FileSystemArchive::openIStream(const std::string& path, BitFlags<ReadFlag> flags)
@@ -145,7 +148,7 @@ IStream* FileSystemArchive::openIStream(const std::string& path, BitFlags<ReadFl
         fseek( file, 0, SEEK_END);
         int64_t fileSize = ftell(file);
         fseek( file, 0, SEEK_SET);
-        void *ptr = malloc(sizeof(FileIStream));
+        void *ptr = comm_alloc(sizeof(FileIStream));
         FileIStream* istream = new (ptr) FileIStream(file, fileSize);
         return istream;
     }
@@ -169,7 +172,7 @@ OStream* FileSystemArchive::openOStream(const std::string& path, BitFlags<WriteF
         fseek( file, 0, SEEK_END);
         int64_t fileSize = ftell(file);
         fseek( file, 0, SEEK_SET);
-        void *ptr = malloc(sizeof(FileOStream));
+        void *ptr = comm_alloc(sizeof(FileOStream));
         FileOStream* ostream = new (ptr) FileOStream(file, fileSize);
         return ostream;
     }
@@ -220,11 +223,11 @@ bool FileSystemArchive::readonly() const {
 
 void FileSystemArchive::destroy() {
     this->~FileSystemArchive();
-    free(this);
+    comm_free(this);
 }
 
 IArchive* CreateFSArchive(const std::string& rootPath) {
-    auto memptr = malloc(sizeof(FileSystemArchive));
+    auto memptr = comm_alloc(sizeof(FileSystemArchive));
     return new (memptr) FileSystemArchive(rootPath);
 }
 

@@ -4,7 +4,7 @@
 #include <vector>
 #include <utils/enum_class_bits.h>
 
-namespace common {
+namespace comm {
 
     enum class SeekOption {
         begin   = 0,
