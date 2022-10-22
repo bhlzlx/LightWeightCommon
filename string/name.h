@@ -23,7 +23,7 @@ namespace comm {
         char const* text() const;
         uint16_t length() const;
         operator size_t() const {
-            return _heapPtr->str;
+            return (size_t)_heapPtr->str;
         }
         ~Name() {}
     };
