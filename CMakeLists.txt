@@ -10,6 +10,7 @@ PRIVATE
     io/filesystem_archive.cpp
     memory/memory.cpp
     string/name.cpp
+    memory/tlsf/comm_tlsf.cpp
 )
 
 target_include_directories(LightWeightCommon

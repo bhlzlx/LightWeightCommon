@@ -1,2 +1,6 @@
 {
+    "files.associations": {
+        "memory_resource": "cpp",
+        "tuple": "cpp"
+    }
 }
