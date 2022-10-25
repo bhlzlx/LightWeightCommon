@@ -63,6 +63,17 @@ namespace comm {
             const T& operator[](size_t index) const {
                 return _data[index];
             }
+            Array(Array&& arr) {
+                for(size_t i = 0; i < SIZE; ++i) {
+                    _data[i] = std::move(arr._data[i]);
+                }
+            }
+            Array& operator = (Array&& arr) {
+                for(size_t i = 0; i < SIZE; ++i) {
+                    _data[i] = std::move(arr._data[i]);
+                }
+                return *this;
+            }
         };
 
         struct node_t {
@@ -135,6 +146,15 @@ namespace comm {
                 node->offset = 0;
                 insertFreeAllocation(node, false);
                 _head = node;
+            }
+
+            Pool(Pool&& pool)
+                : _1stBitmap(pool._1stBitmap)
+                , _2ndBitmap(std::move(pool._2ndBitmap))
+                , _allocationTable(std::move(pool._allocationTable))
+                , _allocationMap(std::move(pool._allocationMap))
+                , _head(pool._head)
+            {
             }
 
             bitmap_level_t queryBitmapLevelForAlloc(size_t size) {
@@ -415,12 +435,17 @@ namespace comm {
                 return alloc(size);
             }
 
-            void free( uint32_t offset ) {
+            bool free( uint32_t offset ) {
                 node_t* node = _allocationMap[offset];
                 assert(node);
-                insertFreeAllocation(node, true);
-                node->free = 1;
-                _allocationMap.erase(offset);
+                if(node) {
+                    insertFreeAllocation(node, true);
+                    node->free = 1;
+                    _allocationMap.erase(offset);
+                    return true;
+                } else {
+                    return false;
+                }
             }
 
         };
