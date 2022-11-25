@@ -21,9 +21,17 @@ namespace comm {
             : size_(size)
             , align_(alignSize-1)
             , flight_(0)
-            , range_{0, 0}
+            , range_{}
             , flightRanges_{}
         {}
+        void reset(uint32_t size) {
+            size_ = size;
+            flight_ = 0;
+            range_ = {};
+            for(auto& range: flightRanges_) {
+                range = {};
+            }
+        }
         flight_range_t const& flight() const {
             return flightRanges_[flight_];
         }
@@ -38,9 +46,9 @@ namespace comm {
         }
         uint32_t alloc(uint32_t size) {
             size = (size + align_) & ~align_;
-            uint32_t max = size_-1; // 一定要减1
+            uint32_t max = size_;
             if(range_.end < range_.begin) {
-                max = range_.begin - 1;
+                max = range_.begin;
             }
             while(true) {
                 uint32_t availSize = max - range_.end;
@@ -51,7 +59,7 @@ namespace comm {
                 } else {
                     if(range_.begin > 0 && range_.end > range_.begin) {
                         range_.end = 0;
-                        max = range_.begin - 1;
+                        max = range_.begin;
                     } else {
                         return InvalidAlloc;
                     }
