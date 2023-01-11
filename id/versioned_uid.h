@@ -5,16 +5,18 @@
 namespace comm {
 
     struct VersionedUID {
-        union {
-            struct {
-                uint32_t ver : 8;
-                uint32_t number : 24;
-            };
-            uint32_t uuid;
-        };
+        uint32_t ver : 8;
+        uint32_t number : 24;
+        uint32_t uuid() const {
+            uint32_t rst;
+            memcpy(&rst, this, sizeof(uint32_t));
+            return rst;
+        }
+        void setUUID(uint32_t uuid) {
+            memcpy(this, &uuid, sizeof(uint32_t));
+        }
+        static const VersionedUID InvalidUID;
     };
-    static constexpr VersionedUID InvalidUID = {0, 0};
-
     static_assert(sizeof(VersionedUID) == sizeof(uint32_t), "");
 
     class VersionedUIDManager {
