@@ -14,6 +14,7 @@ PRIVATE
     memory/flight_ring.cpp
     string/name.cpp
     memory/tlsf/comm_tlsf.cpp
+    log/client_log.cpp
 )
 
 target_include_directories(LightWeightCommon
