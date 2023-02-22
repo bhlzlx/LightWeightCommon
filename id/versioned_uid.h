@@ -1,6 +1,7 @@
 #pragma once
 #include <queue>
 #include <cstdint>
+#include <cstring>
 
 namespace comm {
 
