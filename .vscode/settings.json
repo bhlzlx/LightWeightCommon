@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "memory_resource": "cpp",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "initializer_list": "cpp"
     }
 }

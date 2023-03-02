@@ -17,6 +17,12 @@ PRIVATE
     log/client_log.cpp
 )
 
+target_compile_features(LightWeightCommon
+PRIVATE
+    cxx_std_20
+)
+
+
 target_include_directories(LightWeightCommon
 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}

@@ -115,4 +115,56 @@ namespace comm {
         }
     };
 
+    class SharedMutexLock {
+        enum class LockStatus {
+            None,
+            Shared,
+            Exclusive,
+        };
+    private:
+        SharedMutex*    _mutex;
+        LockStatus      _status;
+    public:
+        SharedMutexLock(SharedMutex& mutex )
+            : _mutex(&mutex)
+            , _status(LockStatus::None)
+        {}
+
+        void lock_shared() {
+            assert( _status == LockStatus::None);
+            if(_status != LockStatus::None) {
+                return;
+            }
+            _mutex->lock_shared();
+            _status = LockStatus::Shared;
+        }
+
+        void lock() {
+            assert( _status == LockStatus::None);
+            if(_status != LockStatus::None) {
+                return;
+            }
+            _mutex->lock();
+            _status = LockStatus::Exclusive;
+        }
+
+        ~SharedMutexLock() {
+            switch(_status) {
+                case LockStatus::Shared: {
+                    _mutex->unlock_shared();
+                    break;
+                }
+                case LockStatus::Exclusive: {
+                    _mutex->unlock(); 
+                    break;
+                }
+                case LockStatus::None:
+                default:
+                    break;
+            }
+        }
+
+    };
+
+
 }
