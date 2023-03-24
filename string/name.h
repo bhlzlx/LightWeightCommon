@@ -8,12 +8,13 @@ namespace comm {
 
     class Name {
     friend class NamePool;
-    private:
-        // prototype_t 只是为了方便调试的时候观察值
+    public:
         struct prototype_t {
             uint16_t    length;
             char        str[1];
         };
+    private:
+        // prototype_t 只是为了方便调试的时候观察值
     private:
         prototype_t* _heapPtr;
         Name(prototype_t* ptr);
@@ -49,9 +50,13 @@ namespace comm {
         };
         std::set<Name::prototype_t*, prototype_less>    _nameSet;
         std::mutex                                      _mutex;
+        size_t                                          _totalBytes;
     public:
         NamePool();
-        Name getName( char const* str, uint16_t length );
+        Name getName(char const* str, uint16_t length);
+        size_t bytesTotal() const {
+            return _totalBytes;
+        }
         ~NamePool();
     };
 

@@ -22,6 +22,8 @@ namespace comm {
     //
     NamePool::NamePool()
         : _nameSet()
+        , _mutex()
+        , _totalBytes(0)
     {}
 
     Name NamePool::getName( char const* str, uint16_t length ) {
@@ -36,12 +38,14 @@ namespace comm {
          * @brief 如果先看set里有没有，则需要查找两次，如果提前准备好内存，则只需要插入一次
          * 不过也有其缺点，如果数据已经存在就会有一次内存回收的操作。
          */
-        Name::prototype_t* prototype_t = (Name::prototype_t*)(uint8_t*)comm_alloc(sizeof(str) + length + 1);
+        size_t bytes = sizeof(sizeof(Name::prototype_t) + length);
+        Name::prototype_t* prototype_t = (Name::prototype_t*)(uint8_t*)comm_alloc(bytes);
         strcpy(prototype_t->str, str);
         prototype_t->length = length;
 
         std::unique_lock<std::mutex> lock(_mutex);
         auto rst = _nameSet.insert(prototype_t);
+        this->_totalBytes += bytes;
         lock.unlock();
 
         if(!rst.second) {
