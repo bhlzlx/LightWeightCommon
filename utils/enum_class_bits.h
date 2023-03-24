@@ -5,26 +5,29 @@
 
 namespace comm {
 
-    template<typename T, typename IntType = uint8_t, typename validation = std::enable_if_t<std::is_enum<T>::value, bool>>
+    template<typename T>
+    requires std::is_enum_v<T>
     class BitFlags {
     private:
-        IntType _flags;
+        using underlying_type = std::underlying_type<T>::type;
+        underlying_type _flags;
+        // std::underlying_type<T> _flags;
     private:
         template<typename F>
         constexpr bool is_2_power(F x) const {
             return (x != 0) && ((x & (x-1))) == 0;
         }
         template<typename F, typename ...Args>
-        constexpr IntType compose(F val, Args ...args) const {
+        constexpr underlying_type compose(F val, Args ...args) const {
             return compose(val) | compose(args...);
         }
         template<typename F>
-        constexpr IntType compose(F val) const{
-            IntType result = (IntType)val;
+        constexpr underlying_type compose(F val) const{
+            underlying_type result = (underlying_type)val;
             assert(is_2_power(result)&&"value is not a power of 2");
             return result;
         }
-        constexpr IntType compose() const {
+        constexpr underlying_type compose() const {
             return 0;
         }
     public:
@@ -41,7 +44,7 @@ namespace comm {
         constexpr bool test(T val) const {
             return (_flags & compose(val)) == compose(val);
         }
-        constexpr operator IntType() const {
+        constexpr operator underlying_type() const {
             return _flags;
         }
         void append(T val) {
