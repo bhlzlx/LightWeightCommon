@@ -36,9 +36,9 @@ namespace comm {
                 return rst;
             } else {
                 if(counter_ & ~0xffffff) { // 超过最大限了
-                    return {}; // invalid id
+                    return VersionedUID::InvalidUID; // invalid id
                 } else {
-                    return VersionedUID{0, ++counter_}; // 从1开始计算
+                    return VersionedUID{0, counter_++}; // 从1开始计算
                 }
             }
         }

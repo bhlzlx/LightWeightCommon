@@ -9,7 +9,7 @@ namespace comm {
     requires std::is_enum_v<T>
     class BitFlags {
     private:
-        using underlying_type = std::underlying_type<T>::type;
+        using underlying_type = typename std::underlying_type<T>::type;
         underlying_type _flags;
         // std::underlying_type<T> _flags;
     private:

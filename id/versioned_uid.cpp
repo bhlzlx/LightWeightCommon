@@ -2,5 +2,5 @@
 
 namespace comm {
 
-    const VersionedUID VersionedUID::InvalidUID = {};
+    const VersionedUID VersionedUID::InvalidUID = {0xff, 0xffffff};
 }
