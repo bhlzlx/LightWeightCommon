@@ -25,6 +25,10 @@ namespace comm {
         uint32_t                    counter_;
         std::queue<VersionedUID>    freeList_;
     public:
+        VersionedUIDManager()
+            : counter_(0)
+            , freeList_{}
+        {}
         void free(VersionedUID id) {
             ++id.ver;
             freeList_.push(id);
