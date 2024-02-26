@@ -16,6 +16,15 @@ namespace comm {
         void setUUID(uint32_t uuid) {
             memcpy(this, &uuid, sizeof(uint32_t));
         }
+        bool valid() const {
+            return *this != InvalidUID;
+        }
+        bool operator == (VersionedUID const& other) const {
+            return uuid() == other.uuid();
+        }
+        bool operator != (VersionedUID const& other) const {
+            return uuid() != other.uuid();
+        }
         static const VersionedUID InvalidUID;
     };
     static_assert(sizeof(VersionedUID) == sizeof(uint32_t), "");
