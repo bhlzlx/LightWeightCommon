@@ -62,20 +62,28 @@ namespace comm {
         }
         Handle(Handle const& handle) {
             ref_ = handle.ref_;
-            ref_->addRef();
+            if(ref_) {
+                ref_->addRef();
+            }
         }
         Handle(Handle && handle) {
-            ref_->deRef();
+            if(ref_) {
+                ref_->deRef();
+            }
             ref_ = handle.ref_;
             handle.ref_ = nullptr;
         }
         Handle& operator = (Handle const& handle) {
             ref_ = handle.ref_;
-            ref_->addRef();
+            if(ref_) {
+                ref_->addRef();
+            }
             return *this;
         }
         Handle& operator = (Handle&& handle) {
-            ref_->deRef();
+            if(ref_) {
+                ref_->deRef();
+            }
             ref_ = handle.ref_;
             handle.ref_ = nullptr;
             return *this;
@@ -108,12 +116,14 @@ namespace comm {
             :handle_()
         {
         }
-        ObjectHandle(void* ptr = nullptr) 
+        ObjectHandle(void* ptr) 
             :handle_(ptr)
         {
         }
         ~ObjectHandle() {
-            handle_.ref_->reset();
+            if(handle_) {
+                handle_.ref_->reset();
+            }
         }
         Handle handle() const {
             return handle_;
