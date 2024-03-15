@@ -25,6 +25,7 @@ namespace comm {
     public:
         RefInfo(void* ptr)
             : ref_(1)
+            , ptr_(ptr)
         {}
 
         void addRef() {
