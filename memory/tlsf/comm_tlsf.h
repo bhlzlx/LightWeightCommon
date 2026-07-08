@@ -203,9 +203,6 @@ namespace comm {
                     else {
                         --level.secondLevel;
                     }
-                    level.firstLevel -= level.secondLevel==0?1:0;
-                    --level.secondLevel;
-                    level.secondLevel&=(SLC-1);
                     level.firstLevel -= (BasePowLevel - 1);
                 }
                 return level;
@@ -226,6 +223,20 @@ namespace comm {
                 auto level = queryBitmapLevelForAlloc(size);
                 auto levelSize = queryLevelSize(level);
                 return levelSize;
+            }
+
+            /// 静态方法：计算分配 size 字节所需的 TLSF 对齐池大小
+            static size_t AlignedPoolSize(size_t size) {
+                if (size <= FLM) {
+                    return ((size + MinimiumAllocationSize - 1) / MinimiumAllocationSize) * MinimiumAllocationSize;
+                }
+                int fl = (int)tlsf_fls_sizet(size);
+                size_t levelMin = 1ULL << fl;
+                size_t segmentSize = levelMin >> SLI;
+                size -= levelMin;
+                size_t segCount = (size + segmentSize - 1) / segmentSize; // ceiling
+                if (!segCount) segCount = 1;
+                return levelMin + segCount * segmentSize;
             }
 
             //  看这个级别是不是有空闲块
@@ -386,23 +397,24 @@ namespace comm {
 
             node_t* queryFreeAllocation( size_t size ) {
                 bitmap_level_t level = queryBitmapLevelForAlloc(size);
-                if(queryFreeStatus(level)) { // 恰好有空间块可以分配
+                if(queryFreeStatus(level)) {
                     auto allocation = queryAllocationWithFreeLevel(level);
                     return allocation;
-                } else { // 没有合适的内存块分配，找一个可分割的大些的内存块
-                    size = queryLevelSize(level);
-                    if(++level.secondLevel >= SLC) {
-                        ++level.firstLevel;
-                        level.secondLevel = 0;
-                    }
-                    bitmap_level_t splitLevel = findLevelForSplit(level);
-                    if(!splitLevel.valid()) {
-                        return nullptr; // 找不着合适的块了，不能再分配了
-                    }
-                    // 拿着合适的块分割，再分配
-                    node_t* allocation = splitAllocation(splitLevel, size);
-                    return allocation;
                 }
+                // exact level 没有，从同 firstLevel 的更高 secondLevel 开始搜
+                size = queryLevelSize(level);
+                bitmap_level_t splitLevel = findLevelForSplit({level.firstLevel, (uint16_t)(level.secondLevel + 1)});
+                if(splitLevel.valid()) {
+                    return splitAllocation(splitLevel, size);
+                }
+                // 同一 firstLevel 没有，往上一级搜
+                level.firstLevel++;
+                level.secondLevel = 0;
+                splitLevel = findLevelForSplit(level);
+                if(splitLevel.valid()) {
+                    return splitAllocation(splitLevel, size);
+                }
+                return nullptr;
             }
 
             uint32_t alloc( size_t size ) {
